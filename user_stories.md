@@ -1,6 +1,6 @@
-User Stories
+##User Stories
 
-Admin User Stories
+'##Admin User Stories'
 1. Login to Portal
 
 Title:
@@ -77,7 +77,7 @@ Story Points: 4
 
 
 
-Patient User Stories
+'##Patient User Stories'
 
 6. View Doctors Without Login
 
@@ -152,7 +152,7 @@ Story Points: 3
 
 
 
-Doctor User Stories
+'##Doctor User Stories'
 
 
 11. Doctor Login
