@@ -1,4 +1,4 @@
-#Architecture summary
+## Architecture summary
 
 The application follows a layered architecture combining both MVC and REST paradigms within a single Spring Boot system. The Admin and Doctor dashboards are implemented using Thymeleaf-based MVC controllers, enabling server-side rendering for UI-driven workflows. In contrast, all other modules are exposed via REST APIs, allowing flexible and scalable client interactions through JSON-based communication. Both controller types—MVC and REST—act as entry points and consistently delegate request handling to a centralized service layer, ensuring separation of concerns and maintainable business logic.
 
