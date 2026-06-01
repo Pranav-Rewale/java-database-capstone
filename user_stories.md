@@ -1,6 +1,6 @@
 ## User Stories
-
 ## Admin User Stories
+
 1. Login to Portal
 
 Title:
@@ -8,13 +8,16 @@ As an admin, I want to log into the portal using my username and password, so th
 
 Acceptance Criteria:
 
-Admin can enter valid username and password
-System authenticates credentials
-Admin is redirected to dashboard on success
+- Admin can enter valid username and password
+* System authenticates credentials
++ Admin is redirected to dashboard on success
 
 Priority: High
+
 Story Points: 3
+
 Notes:
+
 Show error for invalid credentials
 
 
@@ -25,12 +28,14 @@ As an admin, I want to log out of the portal, so that I can protect system acces
 
 Acceptance Criteria:
 
-Logout button is visible
-Session is terminated on click
-User is redirected to login page
+- Logout button is visible
+* Session is terminated on click
++ User is redirected to login page
 
 Priority: High
+
 Story Points: 2
+
 
 3. Add Doctor
 
@@ -39,12 +44,14 @@ As an admin, I want to add doctors to the portal, so that they can provide servi
 
 Acceptance Criteria:
 
-Admin can enter doctor details
-Data is validated before saving
-Doctor is successfully added to system
+- Admin can enter doctor details
+* Data is validated before saving
++ Doctor is successfully added to system
 
 Priority: High
+
 Story Points: 5
+
 
 4. Delete Doctor
 
@@ -53,12 +60,14 @@ As an admin, I want to delete a doctor’s profile, so that I can manage system 
 
 Acceptance Criteria:
 
-Admin can select a doctor
-Confirmation prompt is shown
-Doctor record is deleted
+- Admin can select a doctor
+* Confirmation prompt is shown
++ Doctor record is deleted
 
 Priority: Medium
+
 Story Points: 3
+
 
 5. View Appointment Statistics
 
@@ -67,14 +76,13 @@ As an admin, I want to run a stored procedure to get monthly appointment counts,
 
 Acceptance Criteria:
 
-Stored procedure runs successfully
-Monthly data is retrieved
-Results are displayed clearly
+- Stored procedure runs successfully
+* Monthly data is retrieved
++ Results are displayed clearly
 
 Priority: Medium
+
 Story Points: 4
-
-
 
 
 ## Patient User Stories
@@ -86,12 +94,14 @@ As a patient, I want to view a list of doctors without logging in, so that I can
 
 Acceptance Criteria:
 
-Doctor list is visible publicly
-Basic details are shown
-No login is required
+- Doctor list is visible publicly
+* Basic details are shown
++ No login is required
 
 Priority: High
+
 Story Points: 3
+
 
 7. Sign Up
 
@@ -100,12 +110,14 @@ As a patient, I want to sign up using email and password, so that I can book app
 
 Acceptance Criteria:
 
-User enters email and password
-Validation is performed
-Account is created successfully
+- User enters email and password
+* Validation is performed
++ Account is created successfully
 
 Priority: High
+
 Story Points: 4
+
 
 8. Login
 
@@ -114,12 +126,14 @@ As a patient, I want to log into the portal, so that I can manage my bookings.
 
 Acceptance Criteria:
 
-User enters credentials
-Authentication is successful
-Redirect to dashboard
+- User enters credentials
+* Authentication is successful
++ Redirect to dashboard
 
 Priority: High
+
 Story Points: 3
+
 
 9. Book Appointment
 
@@ -128,12 +142,14 @@ As a patient, I want to book an appointment with a doctor, so that I can get con
 
 Acceptance Criteria:
 
-Patient selects doctor and time slot
-Appointment duration is one hour
-Booking is confirmed
+- Patient selects doctor and time slot
+* Appointment duration is one hour
++ Booking is confirmed
 
 Priority: High
+
 Story Points: 5
+
 
 10. View Upcoming Appointments
 
@@ -142,18 +158,16 @@ As a patient, I want to view my upcoming appointments, so that I can prepare acc
 
 Acceptance Criteria:
 
-Upcoming appointments are listed
-Date and time are visible
-Doctor details are shown
+- Upcoming appointments are listed
+* Date and time are visible
++ Doctor details are shown
 
 Priority: Medium
+
 Story Points: 3
 
 
-
-
 ## Doctor User Stories
-
 
 11. Doctor Login
 
@@ -162,12 +176,14 @@ As a doctor, I want to log into the portal, so that I can manage my appointments
 
 Acceptance Criteria:
 
-Doctor enters credentials
-Authentication is successful
-Redirect to dashboard
+- Doctor enters credentials
+* Authentication is successful
++ Redirect to dashboard
 
 Priority: High
+
 Story Points: 3
+
 
 12. Doctor Logout
 
@@ -176,12 +192,14 @@ As a doctor, I want to log out, so that I can protect my data.
 
 Acceptance Criteria:
 
-Logout option is available
-Session ends securely
-Redirect to login page
+- Logout option is available
+* Session ends securely
++ Redirect to login page
 
 Priority: High
+
 Story Points: 2
+
 
 13. View Appointment Calendar
 
@@ -190,12 +208,14 @@ As a doctor, I want to view my appointment calendar, so that I can stay organize
 
 Acceptance Criteria:
 
-Calendar view is displayed
-Appointments are listed by date
-Time slots are clearly visible
+- Calendar view is displayed
+* Appointments are listed by date
++ Time slots are clearly visible
 
 Priority: High
+
 Story Points: 4
+
 
 14. Mark Unavailability
 
@@ -204,12 +224,14 @@ As a doctor, I want to mark my unavailability, so that patients can only book av
 
 Acceptance Criteria:
 
-Doctor selects unavailable dates/times
-System blocks those slots
-Patients cannot book unavailable slots
+- Doctor selects unavailable dates/times
+* System blocks those slots
++ Patients cannot book unavailable slots
 
 Priority: Medium
+
 Story Points: 4
+
 
 15. Update Profile
 
@@ -218,12 +240,14 @@ As a doctor, I want to update my profile, so that patients have accurate informa
 
 Acceptance Criteria:
 
-Doctor edits specialization/contact info
-Changes are saved
-Updated info is visible to patients
+- Doctor edits specialization/contact info
+* Changes are saved
++ Updated info is visible to patients
 
 Priority: Medium
+
 Story Points: 3
+
 
 16. View Patient Details
 
@@ -232,9 +256,10 @@ As a doctor, I want to view patient details for upcoming appointments, so that I
 
 Acceptance Criteria:
 
-Patient details are accessible
-Linked to appointments
-Information is accurate
+- Patient details are accessible
+* Linked to appointments
++ Information is accurate
 
 Priority: High
+
 Story Points: 4
