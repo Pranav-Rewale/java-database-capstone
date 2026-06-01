@@ -5,7 +5,7 @@ The application follows a layered architecture combining both MVC and REST parad
 The service layer serves as the core of the application, orchestrating operations and routing data access requests to the appropriate persistence layer. The system uses a hybrid database approach: MySQL for structured relational data (such as Patient, Doctor, Appointment, and Admin entities) managed via JPA repositories, and MongoDB for unstructured or document-based data (specifically Prescription records) handled through MongoDB repositories. This dual-database design allows the application to leverage the strengths of both relational and NoSQL storage while maintaining a unified and scalable architecture.
 
 
-Steps of Data flow based on the architecture diagram :
+## Steps of Data flow based on the architecture diagram :
 
 1.The user interacts with the application through either the Admin/Doctor dashboards (via Thymeleaf UI) or other modules exposed through REST endpoints.
 
