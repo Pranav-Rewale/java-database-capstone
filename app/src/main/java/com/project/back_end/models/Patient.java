@@ -20,41 +20,50 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Size(min = 3, max = 100)
+    @NotNull(message = "Name cannot be null")
+    @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
     private String name;
 
-    @NotNull
-    @Email
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Please provide a valid email address")
     private String email;
 
-    @NotNull
-    @Size(min = 6)
+    @NotNull(message = "Password cannot be null")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @NotNull
+    @NotNull(message = "Phone number cannot be null")
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone format")
     private String phone;
 
-    @NotNull
-    @Size(max = 255)
+    @NotNull(message = "Address cannot be null")
+    @Size(max = 255, message = "Address cannot exceed 255 characters")
     private String address;
 
     // --- Enhanced Fields ---
 
     @NotNull(message = "Date of birth is required")
-    @Past(message = "Date of birth must be a historical date in the past") // Logical constraint [cite: 14]
+    @Past(message = "Date of birth must be a historical date in the past")
     private LocalDate dateOfBirth;
 
-    @Size(max = 100)
+    @Size(max = 100, message = "Insurance provider name cannot exceed 100 characters")
     private String insuranceProvider;
 
-    @JsonIgnore // Completely excludes this field from all outgoing JSON responses [cite: 123]
+    @JsonIgnore 
     private String internalMedicalSystemHash;
 
     // --- Constructors ---
     public Patient() {}
+
+    public Patient(String name, String email, String password, String phone, String address, LocalDate dateOfBirth) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.dateOfBirth = dateOfBirth;
+    }
 
     // --- Getters and Setters ---
     public Long getId() { return id; }
