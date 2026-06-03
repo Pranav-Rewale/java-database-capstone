@@ -1,53 +1,151 @@
-/*
-  Import the base API URL from the config file
-  Define a constant DOCTOR_API to hold the full endpoint for doctor-related actions
+/* doctorServices.js - Service module for managing doctor-related backend API interactions */
 
+// Import central API base configurations
+import { API_BASE_URL } from "../config/config.js";
 
-  Function: getDoctors
-  Purpose: Fetch the list of all doctors from the API
+// Centralized Doctor Base API Endpoint
+const DOCTOR_API = API_BASE_URL + '/doctor';
 
-   Use fetch() to send a GET request to the DOCTOR_API endpoint
-   Convert the response to JSON
-   Return the 'doctors' array from the response
-   If there's an error (e.g., network issue), log it and return an empty array
+/**
+ * Retrieves the full list of all active doctors from the system database.
+ * Used on Admin, Patient, and Guest dashboards.
+ * @returns {Promise<Array>} Resolves to a list of doctor objects or an empty array on failure.
+ */
+export async function getDoctors() {
+    try {
+        const response = await fetch(DOCTOR_API, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
 
+        if (response.ok) {
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        }
+        
+        console.error(`Failed to fetch doctors list. Status: ${response.status}`);
+        return [];
+    } catch (error) {
+        // Gracefully handles network or server errors to prevent frontend page crashes
+        console.error("Critical error encountered within getDoctors() service:", error);
+        return [];
+    }
+}
 
-  Function: deleteDoctor
-  Purpose: Delete a specific doctor using their ID and an authentication token
+/**
+ * Removes a doctor profile permanently from the database.
+ * Restricted to authenticated Administrators.
+ * @param {number|string} id - The unique identifier of the target doctor.
+ * @param {string} token - The active administrative JWT security token.
+ * @returns {Promise<boolean>} True if successfully deleted, false otherwise.
+ */
+export async function deleteDoctor(id, token) {
+    if (!id || !token) {
+        console.error("Missing mandatory parameters for deleteDoctor() transaction.");
+        return false;
+    }
 
-   Use fetch() with the DELETE method
-    - The URL includes the doctor ID and token as path parameters
-   Convert the response to JSON
-   Return an object with:
-    - success: true if deletion was successful
-    - message: message from the server
-   If an error occurs, log it and return a default failure response
+    try {
+        // Constructs the full secure endpoint URL using the ID and authorization token headers
+        const response = await fetch(`${DOCTOR_API}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
 
+        if (response.ok) {
+            return true;
+        }
 
-  Function: saveDoctor
-  Purpose: Save (create) a new doctor using a POST request
+        console.error(`Delete transaction failed at server level. Status: ${response.status}`);
+        return false;
+    } catch (error) {
+        console.error(`Critical crash intercepted inside deleteDoctor(id: ${id}):`, error);
+        return false;
+    }
+}
 
-   Use fetch() with the POST method
-    - URL includes the token in the path
-    - Set headers to specify JSON content type
-    - Convert the doctor object to JSON in the request body
+/**
+ * Registers and persists a brand new Doctor profile into the system database records.
+ * Restricted to authenticated Administrators via the 'Add Doctor' modal popup drawer.
+ * @param {Object} doctor - Object payload filled with doctor attributes (name, email, specialty, etc).
+ * @param {string} token - The active administrative JWT security token.
+ * @returns {Promise<Object>} Formatted object holding transaction status { success: boolean, message: string }.
+ */
+export async function saveDoctor(doctor, token) {
+    if (!doctor || !token) {
+        return { success: false, message: "Invalid argument signatures provided to service." };
+    }
 
-   Parse the JSON response and return:
-    - success: whether the request succeeded
-    - message: from the server
+    try {
+        const response = await fetch(DOCTOR_API, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(doctor) // Transforms data payload into standardized JSON string streams
+        });
 
-   Catch and log errors
-    - Return a failure response if an error occurs
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                success: true,
+                message: data.message || "Doctor account registered successfully."
+            };
+        }
 
+        // Handles server-side business logic rejections (e.g., duplicated email entries, failed bean validations)
+        let errorMsg = "Server validation failed.";
+        try {
+            const errData = await response.json();
+            errorMsg = errData.message || errorMsg;
+        } catch (_) {}
 
-  Function: filterDoctors
-  Purpose: Fetch doctors based on filtering criteria (name, time, and specialty)
+        return { success: false, message: `Registration failed: ${errorMsg} (Status ${response.status})` };
+    } catch (error) {
+        console.error("Debugging context logged within saveDoctor():", error);
+        return { success: false, message: "Network connection lost or server unreachable. Please retry." };
+    }
+}
 
-   Use fetch() with the GET method
-    - Include the name, time, and specialty as URL path parameters
-   Check if the response is OK
-    - If yes, parse and return the doctor data
-    - If no, log the error and return an object with an empty 'doctors' array
+/**
+ * Executes a filtered search query against doctor records using query string criteria matching rules.
+ * Supports asynchronous search inputs and specialty drop-down selection pipelines.
+ * @param {string} name - Doctor target lookup name constraint string parameter.
+ * @param {string} time - Availability timeline constraint parameter (e.g. 'AM' or 'PM').
+ * @param {string} specialty - Targeted clinical field qualification criterion string.
+ * @returns {Promise<Array>} Filtered results arrays or a placeholder empty list array.
+ */
+export async function filterDoctors(name, time, specialty) {
+    try {
+        // Build dynamic search criteria parameters safely avoiding broken undefined strings
+        const queryParams = new URLSearchParams();
+        if (name && name.trim() !== "") queryParams.append("name", name.trim());
+        if (time && time.trim() !== "") queryParams.append("time", time.trim());
+        if (specialty && specialty.trim() !== "") queryParams.append("specialty", specialty.trim());
 
-   Catch any other errors, alert the user, and return a default empty result
-*/
+        // Combines base paths smoothly with variable queries to form valid REST URLs
+        const filterUrl = queryParams.toString() ? `${DOCTOR_API}/search?${queryParams.toString()}` : DOCTOR_API;
+
+        const response = await fetch(filterUrl, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        }
+
+        console.warn(`Search routing filter rejected with status code: ${response.status}`);
+        return [];
+    } catch (error) {
+        console.error("Query filter sequence execution exception caught:", error);
+        alert("Unable to process filter criteria at this time due to system connectivity issues.");
+        return [];
+    }
+}
