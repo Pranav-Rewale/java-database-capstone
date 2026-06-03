@@ -62,8 +62,8 @@ public class Admin {
     public void setPassword(String password) {
         this.password = password;
     }
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> 5fd199e1303e10ddaacec1d74a78937fd1aec54e
+
+
+
