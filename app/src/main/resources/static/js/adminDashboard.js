@@ -1,72 +1,185 @@
-/*
-  This script handles the admin dashboard functionality for managing doctors:
-  - Loads all doctor cards
-  - Filters doctors by name, time, or specialty
-  - Adds a new doctor via modal form
+/* adminDashboard.js - Service script managing administrative doctor interactions and data binding */
 
+// Import required modal, creation components, and services
+import { openModal } from "./components/modals.js";
+import { createDoctorCard } from "./components/doctorCard.js";
+import { getDoctors, filterDoctors, saveDoctor } from "./services/doctorServices.js";
 
-  Attach a click listener to the "Add Doctor" button
-  When clicked, it opens a modal form using openModal('addDoctor')
+/**
+ * Initializes the administrative control panel by setting up event observers 
+ * and executing baseline data extraction once the DOM context is ready.
+ */
+function initAdminDashboard() {
+    // 1. Hook the 'Add Doctor' structural navigation controller button trigger
+    const addDocBtn = document.getElementById('addDocBtn');
+    if (addDocBtn) {
+        addDocBtn.addEventListener('click', () => {
+            openModal('addDoctor');
+        });
+    }
 
+    // 2. Attach instant real-time event lookup watchers to the filter components
+    const searchBar = document.getElementById("searchBar");
+    const timeFilter = document.getElementById("timeFilter"); // Targets id="timeFilter" inside template
+    const specialtyFilter = document.getElementById("specialtyFilter"); // Targets id="specialtyFilter" inside template
 
-  When the DOM is fully loaded:
-    - Call loadDoctorCards() to fetch and display all doctors
+    if (searchBar) searchBar.addEventListener("input", filterDoctorsOnChange);
+    if (timeFilter) timeFilter.addEventListener("change", filterDoctorsOnChange);
+    if (specialtyFilter) specialtyFilter.addEventListener("change", filterDoctorsOnChange);
 
+    // 3. Mount baseline data into active viewport tracking layout trees
+    loadDoctorCards();
+}
 
-  Function: loadDoctorCards
-  Purpose: Fetch all doctors and display them as cards
+/**
+ * Orchestrates backend inquiries to fetch all clinical providers and present them.
+ */
+async function loadDoctorCards() {
+    try {
+        const doctors = await getDoctors();
+        renderDoctorCards(doctors);
+    } catch (error) {
+        console.error("Critical error encountered within loadDoctorCards() loop execution:", error);
+    }
+}
 
-    Call getDoctors() from the service layer
-    Clear the current content area
-    For each doctor returned:
-    - Create a doctor card using createDoctorCard()
-    - Append it to the content div
+/**
+ * Asynchronously evaluates active user input fields to coordinate database search filters.
+ */
+async function filterDoctorsOnChange() {
+    const searchBar = document.getElementById("searchBar");
+    const timeFilter = document.getElementById("timeFilter");
+    const specialtyFilter = document.getElementById("specialtyFilter");
 
-    Handle any fetch errors by logging them
+    // Read values, trimming text spaces, and standardizing empty parameters to null
+    const nameValue = searchBar ? searchBar.value.trim() : null;
+    const timeValue = (timeFilter && timeFilter.value !== "") ? timeFilter.value : null;
+    const specialtyValue = (specialtyFilter && specialtyFilter.value !== "") ? specialtyFilter.value : null;
 
+    try {
+        // Dispatch filtered search criteria across background query parameters
+        const matchingDoctors = await filterDoctors(nameValue, timeValue, specialtyValue);
+        
+        const contentDiv = document.getElementById("content");
+        if (!contentDiv) return;
 
-  Attach 'input' and 'change' event listeners to the search bar and filter dropdowns
-  On any input change, call filterDoctorsOnChange()
+        if (matchingDoctors && matchingDoctors.length > 0) {
+            renderDoctorCards(matchingDoctors);
+        } else {
+            // Display empty state layout text notification context safely if no fields correspond
+            contentDiv.innerHTML = `<div class="noPatientRecord">No doctors found with the given filters.</div>`;
+        }
+    } catch (error) {
+        console.error("Query sequence evaluation exception intercepted:", error);
+        alert("An error occurred while attempting to filter doctor profile layouts.");
+    }
+}
 
+/**
+ * Modular layout helper method dedicated to populating and cleaning the dashboard panel grids.
+ * @param {Array} doctors - Collection payload holding target doctor profiles.
+ */
+function renderDoctorCards(doctors) {
+    const contentDiv = document.getElementById("content");
+    if (!contentDiv) return;
 
-  Function: filterDoctorsOnChange
-  Purpose: Filter doctors based on name, available time, and specialty
+    // Clear structural container layout bounds cleanly preventing duplicate row paint cards
+    contentDiv.innerHTML = "";
 
-    Read values from the search bar and filters
-    Normalize empty values to null
-    Call filterDoctors(name, time, specialty) from the service
+    if (!doctors || doctors.length === 0) {
+        contentDiv.innerHTML = `<div class="noPatientRecord">No doctor profile records are currently registered.</div>`;
+        return;
+    }
 
-    If doctors are found:
-    - Render them using createDoctorCard()
-    If no doctors match the filter:
-    - Show a message: "No doctors found with the given filters."
+    // Traverse result arrays to construct and mount independent HTML element cards
+    doctors.forEach(doctor => {
+        const doctorCardElement = createDoctorCard(doctor);
+        contentDiv.appendChild(doctorCardElement);
+    });
+}
 
-    Catch and display any errors with an alert
+/**
+ * Global operational handler responsible for packaging form metadata payloads 
+ * and executing remote persistence updates for new clinical providers.
+ */
+window.adminAddDoctor = async function () {
+    // Locate and extract raw input fields context parameters safely out of the modal form markup
+    const nameInp = document.getElementById("docName");
+    const specialtyInp = document.getElementById("docSpecialty");
+    const emailInp = document.getElementById("docEmail");
+    const passwordInp = document.getElementById("docPassword");
+    const phoneInp = document.getElementById("docPhone");
 
+    if (!nameInp || !specialtyInp || !emailInp || !passwordInp || !phoneInp) {
+        alert("Registration failed: Form input fields are missing from the current active modal DOM frame.");
+        return;
+    }
 
-  Function: renderDoctorCards
-  Purpose: A helper function to render a list of doctors passed to it
+    // Capture checked values across schedule blocks (e.g. checkbox selections for available shifts)
+    const activeCheckedSlots = [];
+    const checkboxes = document.querySelectorAll("#modal-body input[type='checkbox']:checked");
+    checkboxes.forEach(box => {
+        activeCheckedSlots.push(box.value);
+    });
 
-    Clear the content area
-    Loop through the doctors and append each card to the content area
+    // Fallback: If no checkbox array is explicitly matched, parse generic fallback text rules
+    if (activeCheckedSlots.length === 0) {
+        const timeInputText = document.getElementById("docAvailability");
+        if (timeInputText && timeInputText.value.trim() !== "") {
+            activeCheckedSlots.push(timeInputText.value.trim());
+        }
+    }
 
+    // Verify system validation fields before packing payload arrays
+    if (!nameInp.value.trim() || !specialtyInp.value.trim() || !emailInp.value.trim() || !passwordInp.value || !phoneInp.value.trim()) {
+        alert("Please complete all mandatory field entries inside the registration form.");
+        return;
+    }
 
-  Function: adminAddDoctor
-  Purpose: Collect form data and add a new doctor to the system
+    // Retrieve active administration token authentication key context parameters
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Administrative authorization expired: Security credentials token not found. Please log in again.");
+        return;
+    }
 
-    Collect input values from the modal form
-    - Includes name, email, phone, password, specialty, and available times
+    // Structure the comprehensive data object matching your backend Entity definitions
+    const newDoctorObject = {
+        name: nameInp.value.trim(),
+        specialty: specialtyInp.value.trim(),
+        email: emailInp.value.trim(),
+        password: passwordInp.value,
+        phone: phoneInp.value.trim(),
+        availableTimes: activeCheckedSlots
+    };
 
-    Retrieve the authentication token from localStorage
-    - If no token is found, show an alert and stop execution
+    try {
+        // Trigger server-side background network stream mapping transaction
+        const result = await saveDoctor(newDoctorObject, token);
 
-    Build a doctor object with the form values
+        if (result.success) {
+            alert(result.message || "Doctor profile saved and registered successfully.");
+            
+            // Cleanly dismiss the modal system popups overlay
+            const modalElement = document.getElementById("modal");
+            if (modalElement) {
+                modalElement.classList.remove("active");
+            }
+            
+            // Refresh dashboard list layers cleanly to incorporate new profiles instant updates
+            loadDoctorCards();
+        } else {
+            alert(result.message || "Unable to save doctor profile records.");
+        }
+    } catch (error) {
+        console.error("Critical fault encountered during adminAddDoctor registration workflow:", error);
+        alert("An unexpected exception took place while persisting this record data. Please retry.");
+    }
+};
 
-    Call saveDoctor(doctor, token) from the service
-
-    If save is successful:
-    - Show a success message
-    - Close the modal and reload the page
-
-    If saving fails, show an error message
-*/
+// Bind component triggers smoothly upon browser parsing complete milestones
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAdminDashboard);
+} else {
+    initAdminDashboard();
+}
