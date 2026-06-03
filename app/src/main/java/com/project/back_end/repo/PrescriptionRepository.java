@@ -1,21 +1,25 @@
 package com.project.back_end.repo;
 
-public interface PrescriptionRepository  {
-// 1. Extend MongoRepository:
-//    - The repository extends MongoRepository<Prescription, String>, which provides basic CRUD functionality for MongoDB.
-//    - This allows the repository to perform operations like save, delete, update, and find without needing to implement these methods manually.
-//    - MongoRepository is tailored for working with MongoDB, unlike JpaRepository which is used for relational databases.
+import com.project.back_end.entity.Prescription;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-// Example: public interface PrescriptionRepository extends MongoRepository<Prescription, String> {}
+import java.util.List;
 
-// 2. Custom Query Method:
+/**
+ * Data Access Layer repository interface managing Prescription document persistence.
+ * Extends MongoRepository to inherit standard NoSQL BSON/JSON mapping operations,
+ * indexing structures, and automated query derivation routines natively for MongoDB.
+ */
+@Repository // Marks this interface as a data repository container component for Spring's component scanning mechanics
+public interface PrescriptionRepository extends MongoRepository<Prescription, String> {
 
-//    - **findByAppointmentId**:
-//      - This method retrieves a list of prescriptions associated with a specific appointment.
-//      - Return type: List<Prescription>
-//      - Parameters: Long appointmentId
-//      - MongoRepository automatically derives the query from the method name, in this case, it will find prescriptions by the appointment ID.
-
-
+    /**
+     * Custom query method automatically derived by Spring Data MongoDB's naming parser.
+     * Generates a structural JSON query document under the hood: {"appointmentId": appointmentId}
+     * Used by clinicians and patients to pull medical prescription histories linked to specific consultations.
+     * * @param appointmentId The unique relational tracking identification long value.
+     * @return A list containing all matching Prescription document records.
+     */
+    List<Prescription> findByAppointmentId(Long appointmentId);
 }
-
