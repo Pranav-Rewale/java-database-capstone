@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * Automatically initializes database records on application startup.
  * Creates a default administrator account if the admin table is empty.
@@ -22,7 +24,19 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (adminRepository.count() == 0) {
+        List<Admin> admins = adminRepository.findAll();
+        boolean adminExists = false;
+        for (Admin a : admins) {
+            if ("admin".equals(a.getUsername())) {
+                if (adminExists) {
+                    adminRepository.delete(a);
+                    System.out.println(">>> Deleted duplicate Admin account <<<");
+                } else {
+                    adminExists = true;
+                }
+            }
+        }
+        if (!adminExists) {
             Admin defaultAdmin = new Admin("admin", "admin");
             adminRepository.save(defaultAdmin);
             System.out.println(">>> Default Admin created (admin / admin) <<<");

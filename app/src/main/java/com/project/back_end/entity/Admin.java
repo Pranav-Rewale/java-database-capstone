@@ -1,5 +1,6 @@
 package com.project.back_end.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +19,7 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generates the primary key
     private Long id;
 
+    @Column(unique = true)
     @NotNull(message = "Username cannot be null") // Field must not be null
     private String username;
 
