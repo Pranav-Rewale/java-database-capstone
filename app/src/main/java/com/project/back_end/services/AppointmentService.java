@@ -106,9 +106,13 @@ public class AppointmentService {
 
         try {
             // Leverage application base service layer to execute core collision/validation checks
-            Map<String, String> serviceValidationErrors = helperService.validateAppointment(appointment);
-            if (serviceValidationErrors != null && !serviceValidationErrors.isEmpty()) {
-                return new ResponseEntity<>(serviceValidationErrors, HttpStatus.BAD_REQUEST);
+            int checkValidationCode = helperService.validateAppointment(appointment);
+            if (checkValidationCode == -1) {
+                responseBody.put("message", "Booking rejected: The assigned doctor record does not exist in the system.");
+                return new ResponseEntity<>(responseBody, HttpStatus.NOT_FOUND);
+            } else if (checkValidationCode == 0) {
+                responseBody.put("message", "Booking rejected: Requested time slot is already taken or unavailable.");
+                return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
             }
 
             // Sync updated tracking parameters definitions
@@ -122,7 +126,7 @@ public class AppointmentService {
             return new ResponseEntity<>(responseBody, HttpStatus.OK);
 
         } catch (Exception error) {
-            System.error.println("Unexpected execution barrier during updateAppointment: " + error.getMessage());
+            System.err.println("Unexpected execution barrier during updateAppointment: " + error.getMessage());
             responseBody.put("message", "Internal server error processing update transaction.");
             return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
         }

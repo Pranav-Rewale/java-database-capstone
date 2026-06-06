@@ -1,4 +1,4 @@
-package com.project.back_end.models;
+package com.project.back_end.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -92,8 +92,4 @@ public class Patient {
 
     public String getInternalMedicalSystemHash() { return internalMedicalSystemHash; }
     public void setInternalMedicalSystemHash(String internalMedicalSystemHash) { this.internalMedicalSystemHash = internalMedicalSystemHash; }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 5fd199e1303e10ddaacec1d74a78937fd1aec54e

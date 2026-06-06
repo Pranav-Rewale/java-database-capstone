@@ -67,11 +67,11 @@ public class TokenService {
         Date expiryDate = new Date(now.getTime() + expirationTimeInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(identifier.trim())
+                .subject(identifier.trim())
                 .claim("role", role) // Includes structural role metrics inside claims payload definitions
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Crypto signs token to make it tamper-proof
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey()) // Crypto signs token to make it tamper-proof
                 .compact();
     }
 
@@ -93,16 +93,44 @@ public class TokenService {
             }
 
             // Validates token cryptographic structure and extracts underlying properties
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(cleanToken)
-                    .getBody();
+                    .parseSignedClaims(cleanToken)
+                    .getPayload();
 
             return claims.getSubject();
         } catch (Exception parseException) {
             System.err.println("Token processing interception error: " + parseException.getMessage());
             return null; // Captures and suppresses signature adjustments, expirations, or tampering issues safely
+        }
+    }
+
+    /**
+     * Extracts the role claim from the JWT token.
+     * @param token Unchecked client bearer session token string.
+     * @return String literal containing the user role, or null if parsing fails.
+     */
+    public String extractRole(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            String cleanToken = token.trim();
+            if (cleanToken.startsWith("Bearer ")) {
+                cleanToken = cleanToken.substring(7);
+            }
+
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(cleanToken)
+                    .getPayload();
+
+            return claims.get("role", String.class);
+        } catch (Exception parseException) {
+            System.err.println("Token role extraction error: " + parseException.getMessage());
+            return null;
         }
     }
 
