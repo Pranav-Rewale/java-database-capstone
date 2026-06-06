@@ -43,7 +43,7 @@ public class Doctor {
     private String password;
 
     @NotNull(message = "Phone number cannot be null")
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone number must match international E.164 format")
+    @Pattern(regexp = "^\\+?[0-9]\\d{1,14}$", message = "Phone number must match international E.164 format")
     private String phone;
 
     @ElementCollection // Used to store a list of simple values in a separate system-managed table

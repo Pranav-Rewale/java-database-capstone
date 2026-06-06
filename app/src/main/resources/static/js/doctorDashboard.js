@@ -74,13 +74,14 @@ async function loadAppointments() {
 
     try {
         // Step 1: Call getAllAppointments with selectedDate, patientName, and token
-        const appointments = await getAllAppointments(selectedDate, patientName, token);
+        const response = await getAllAppointments(selectedDate, patientName, token);
+        const appointments = response && response.appointments ? response.appointments : [];
 
         // Step 2: Clear the table body content completely before rendering new rows
         tableBody.innerHTML = "";
 
         // Step 3: If no appointments are returned, present a friendly italic empty state message row
-        if (!appointments || appointments.length === 0) {
+        if (appointments.length === 0) {
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="noPatientRecord">No Appointments found for today.</td>

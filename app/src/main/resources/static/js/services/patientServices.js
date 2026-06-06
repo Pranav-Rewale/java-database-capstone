@@ -14,7 +14,7 @@ const PATIENT_API = API_BASE_URL + '/patient';
 export async function patientSignup(data) {
     try {
         // Step 1: Send a POST request containing the body payload to the signup endpoint
-        const response = await fetch(`${PATIENT_API}/signup`, {
+        const response = await fetch(PATIENT_API, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -86,19 +86,18 @@ export async function getPatientData(token) {
     }
 
     try {
-        // Step 1: Dispatch a GET request securely conveying the credential token in headers
-        const response = await fetch(`${PATIENT_API}/me`, {
+        // Step 1: Dispatch a GET request securely conveying the credential token in URL path
+        const response = await fetch(`${PATIENT_API}/${token}`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
 
         // Step 2: Evaluate operational parsing states
         if (response.ok) {
-            const patientData = await response.json();
-            return patientData;
+            const data = await response.json();
+            return data && data.patient ? data.patient : null;
         }
 
         console.warn(`Profile extraction failed at backend with status code: ${response.status}`);
@@ -124,23 +123,21 @@ export async function getPatientAppointments(id, token, user) {
     }
 
     try {
-        // Step 1: Construct a dynamic URL path targeting the specific workspace environment request
-        // e.g., maps endpoints out to either '/patient/appointments/patient/1' or '/patient/appointments/doctor/1'
-        const dynamicUrl = `${PATIENT_API}/appointments/${user.toLowerCase()}/${id}`;
+        // Step 1: Construct the URL targeting the patient appointments endpoint
+        const dynamicUrl = `${PATIENT_API}/${id}/${token}`;
 
-        // Step 2: Send a secure GET request using the verified session token mapping
+        // Step 2: Send the GET request
         const response = await fetch(dynamicUrl, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
 
         // Step 3: Return extracted payload arrays back to presentation view painters
         if (response.ok) {
-            const appointmentsArray = await response.json();
-            return Array.isArray(appointmentsArray) ? appointmentsArray : [];
+            const result = await response.json();
+            return result && Array.isArray(result.appointments) ? result.appointments : [];
         }
 
         console.error(`Schedules inquiry failed at server boundaries. Status: ${response.status}`);
@@ -166,29 +163,24 @@ export async function filterAppointments(condition, name, token) {
     }
 
     try {
-        // Step 1: Secure query string parsing avoiding manual raw string concatenation issues
-        const searchParams = new URLSearchParams();
-        if (condition && condition.trim() !== "") searchParams.append("status", condition.trim());
-        if (name && name.trim() !== "") searchParams.append("queryName", name.trim());
+        // Step 1: Set up path variables
+        const cond = (condition && condition.trim() !== "") ? condition.trim() : "null";
+        const qName = (name && name.trim() !== "") ? name.trim() : "null";
 
-        // Step 2: Formulate clean URL paths utilizing the safe parsing matrix parameters
-        const destinationUrl = searchParams.toString() 
-            ? `${PATIENT_API}/appointments/filter?${searchParams.toString()}` 
-            : `${PATIENT_API}/appointments/filter`;
+        // Step 2: Formulate clean URL paths utilizing the path variables
+        const destinationUrl = `${PATIENT_API}/filter/${cond}/${qName}/${token}`;
 
-        // Step 3: Run the network request cycle passing required security authorization bearer keys
+        // Step 3: Run the network request cycle
         const response = await fetch(destinationUrl, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
 
         // Step 4: Safely process data outputs preventing presentation layer breaks
         if (response.ok) {
-            const filteredResults = await response.json();
-            return Array.isArray(filteredResults) ? filteredResults : [];
+            return await response.json();
         }
 
         console.warn(`Filter operation returned unsupportable response signature code: ${response.status}`);

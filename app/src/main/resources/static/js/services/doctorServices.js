@@ -20,7 +20,7 @@ export async function getDoctors() {
 
         if (response.ok) {
             const data = await response.json();
-            return Array.isArray(data) ? data : [];
+            return data && Array.isArray(data.doctors) ? data.doctors : [];
         }
         
         console.error(`Failed to fetch doctors list. Status: ${response.status}`);
@@ -47,10 +47,9 @@ export async function deleteDoctor(id, token) {
 
     try {
         // Constructs the full secure endpoint URL using the ID and authorization token headers
-        const response = await fetch(`${DOCTOR_API}/${id}`, {
+        const response = await fetch(`${DOCTOR_API}/${id}/${token}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
@@ -80,10 +79,9 @@ export async function saveDoctor(doctor, token) {
     }
 
     try {
-        const response = await fetch(DOCTOR_API, {
+        const response = await fetch(`${DOCTOR_API}/${token}`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
@@ -122,23 +120,18 @@ export async function saveDoctor(doctor, token) {
  */
 export async function filterDoctors(name, time, specialty) {
     try {
-        // Build dynamic search criteria parameters safely avoiding broken undefined strings
-        const queryParams = new URLSearchParams();
-        if (name && name.trim() !== "") queryParams.append("name", name.trim());
-        if (time && time.trim() !== "") queryParams.append("time", time.trim());
-        if (specialty && specialty.trim() !== "") queryParams.append("specialty", specialty.trim());
+        const n = (name && name.trim() !== "") ? name.trim() : "null";
+        const t = (time && time.trim() !== "") ? time.trim() : "null";
+        const s = (specialty && specialty.trim() !== "") ? specialty.trim() : "null";
 
-        // Combines base paths smoothly with variable queries to form valid REST URLs
-        const filterUrl = queryParams.toString() ? `${DOCTOR_API}/search?${queryParams.toString()}` : DOCTOR_API;
-
-        const response = await fetch(filterUrl, {
+        const response = await fetch(`${DOCTOR_API}/filter/${n}/${t}/${s}`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
         });
 
         if (response.ok) {
             const data = await response.json();
-            return Array.isArray(data) ? data : [];
+            return data && Array.isArray(data.doctors) ? data.doctors : [];
         }
 
         console.warn(`Search routing filter rejected with status code: ${response.status}`);

@@ -111,7 +111,7 @@ window.doctorLoginHandler = async function () {
     }
 
     // Step 2: Assemble credential payload structure
-    const doctorData = { email, password };
+    const doctorData = { identifier: email, password };
 
     try {
         // Step 3: Dispatch async network post stream

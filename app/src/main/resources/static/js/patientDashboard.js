@@ -106,8 +106,9 @@ window.signupPatient = async function () {
         const passwordElement = document.getElementById("password");
         const phoneElement = document.getElementById("phone");
         const addressElement = document.getElementById("address");
+        const dobElement = document.getElementById("dob");
 
-        if (!nameElement || !emailElement || !passwordElement || !phoneElement || !addressElement) {
+        if (!nameElement || !emailElement || !passwordElement || !phoneElement || !addressElement || !dobElement) {
             alert("❌ Patient registration failed: Missing required entry fields inside the DOM framework.");
             return;
         }
@@ -117,13 +118,14 @@ window.signupPatient = async function () {
         const password = passwordElement.value;
         const phone = phoneElement.value.trim();
         const address = addressElement.value.trim();
+        const dateOfBirth = dobElement.value;
 
-        if (!name || !email || !password || !phone || !address) {
+        if (!name || !email || !password || !phone || !address || !dateOfBirth) {
             alert("Please fill out all input fields inside the signup form before proceeding.");
             return;
         }
 
-        const data = { name, email, password, phone, address };
+        const data = { name, email, password, phone, address, dateOfBirth };
         
         // Dispatch data structure to core background patient communication services
         const { success, message } = await patientSignup(data);
@@ -170,7 +172,7 @@ window.loginPatient = async function () {
             return;
         }
 
-        const data = { email, password };
+        const data = { identifier: email, password };
         
         // Execute background fetch validation network operation
         const response = await patientLogin(data);
